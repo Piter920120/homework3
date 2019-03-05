@@ -1,25 +1,49 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
 
 class App extends Component {
+
+  state = {
+    people: []
+  }
+
+  componentDidMount(){
+    fetch(process.env.PUBLIC_URL + "data/people.json")
+    .then(response => response.json())
+    .then(people => 
+      this.setState({ people }))
+      .catch(error => console.log(error))
+  }
+
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Phone</th>
+          </tr>
+        </thead>
+        <tbody>
+          {this.state.people.map(person => {
+            return (
+              <tr key={person.id}>
+              <td>{person.name}</td>
+              <td>{person.surname}</td>
+              <td>{person.phone}</td>
+              </tr>
+            )
+          })}
+          <tr>
+            <td />
+            <td />
+            <td />
+          </tr>
+        </tbody>
+      </table>
+       
       </div>
     );
   }
