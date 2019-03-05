@@ -1,6 +1,7 @@
 
   
 import React, { Component } from "react";
+import AddPeople from './AddPeople'
 import "./App.css";
 
 class App extends Component {
@@ -29,11 +30,26 @@ class App extends Component {
        })
      })
  }
+
+addName = (name, surname, phone) => {
+  if (name && surname && phone) {
+    this.setState({
+     people: this.state.people.concat({
+       id: Date.now(),
+       name: name,
+       surname: surname,
+       phone: phone,
+       isFavorite: false
+     })
+    })
+   }
+ }
  
 
   render() {
     return (
       <div className="App">
+        <AddPeople addName={this.addName}/>
         <table>
           <thead>
             <tr>
