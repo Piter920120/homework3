@@ -4,48 +4,54 @@ import React, { Component } from "react";
 import AddPeople from "./AddPeople";
 import "./App.css";
 
+
+const firebaseURL = 'https://project2-b052b.firebaseio.com/'
+
 class App extends Component {
   state = {
     people: []
   };
-  componentDidMount() {
-    fetch(process.env.PUBLIC_URL + "data/people.json")
-      .then(res => res.json())
-      .then(people => this.setState({ people }))
-      .catch(err => console.log(err));
-  }
+  
 
-  handleToggleFav = personId => {
-    this.setState({
-      people: this.state.people.map(person => {
-        return personId === person.id
-          ? {
-              ...person,
-              isFavorite: !person.isFavorite
-            }
-          : person;
+  handleToggleFav = (personId, isFavorite) => {
+    const shouldBeFavorite = !isFavorite;
+    fetch(`${firebaseURL}/people/${personId}.json`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        isFavorite: shouldBeFavorite,
+      }),
+    }).then(this.syncContacts);
+  };
+
+  addName = (name, surname, phone, isFavorite) => {
+    fetch(`${firebaseURL}/people.json`, {
+      method: 'POST',
+      body: JSON.stringify({
+        name, surname, phone, isFavorite
       })
-    });
+    }).then(this.syncContacts)
   };
 
-  addName = (name, surname, phone) => {
-    if (name && surname && phone) {
-      this.setState({
-        people: this.state.people.concat({
-          id: Date.now(),
-          name: name,
-          surname: surname,
-          phone: phone,
-          isFavorite: false
-        })
-      });
-    }
-  };
 
   handleRemove = personId => {
-      this.setState({
-        people: this.state.people.filter(person => personId !== person.id)
-      })
+    fetch(`${firebaseURL}/people/${personId}.json`, {
+      method: 'DELETE',
+    }).then(this.syncContacts);
+  };
+
+  syncContacts = () =>
+    fetch(`${firebaseURL}/people.json`)
+      .then(response => response.json())
+      .then(data =>
+        Object.entries(data || {}).map(([id, value]) => ({
+          id,
+          ...value,
+        }))
+      )
+      .then(people => this.setState({people }));
+
+  componentDidMount() {
+    this.syncContacts();
   }
 
   render() {
